@@ -1,0 +1,42 @@
+unit UnitFunctions2;
+
+interface
+
+uses
+  System.SysUtils, System.Types, System.UITypes, System.Classes, System.Variants,
+  FMX.Types, FMX.Controls, FMX.Forms, FMX.Graphics, FMX.Dialogs,
+  FMX.ListView.Appearances, FMX.ListView, FMX.ListView.Types, FireDAC.Comp.Client, Data.DB,
+  FMX.Controls.Presentation, FMX.StdCtrls;
+
+type
+  TFrmFunctions2 = class(TForm)
+    Label1: TLabel;
+
+  private
+    procedure LoadBitmapFromBlob(Bitmap: TBitmap; Blob: TBlobField);
+    { Private declarations }
+  public
+    { Public declarations }
+  end;
+
+var
+  FrmFunctions2: TFrmFunctions2;
+
+implementation
+
+procedure TFrmFunctions2.LoadBitmapFromBlob(Bitmap: TBitmap; Blob: TBlobField);
+var
+  ms: TMemoryStream;
+begin
+  ms := TMemoryStream.Create;
+    try
+      Blob.SaveToStream(ms);
+      ms.Position := 0;
+      Bitmap.LoadFromStream(ms);
+    finally
+      ms.Free;
+    end;
+end;
+
+
+end.

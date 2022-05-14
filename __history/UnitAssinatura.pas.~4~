@@ -1,0 +1,156 @@
+unit UnitAssinatura;
+
+interface
+
+uses
+  System.SysUtils, System.Types, System.UITypes, System.Classes, System.Variants,
+  FMX.Types, FMX.Controls, FMX.Forms, FMX.Graphics, FMX.Dialogs, FMX.Objects,
+  FMX.Controls.Presentation, FMX.StdCtrls, FMX.Layouts,
+
+// user para assinatura
+  System.Generics.Collections
+  ;
+type
+
+{ CRIADO UM RECORD PARA MANIPULAR A ASSINATURA, CONFORME O DEDO OU O MOUSE PASSA PELA TELA O PONTO INCIAL VAI FAZENDO
+ TRACEJADO DA ASSINATURA}
+
+    TAssinatura = Record
+      PosicaoCursor: TPointF;
+      PosState : Byte;
+    End;
+
+
+  TFrmAssinatura = class(TForm)
+    Image4: TImage;
+    Label1: TLabel;
+    topoUser: TImage;
+    lyt_Alinhar_Esquerda: TLayout;
+    rect_assinatura: TRectangle;
+    Image1: TImage;
+    Image3: TImage;
+    lyt_Limpar: TLayout;
+    Image2: TImage;
+    img_assinatura: TImage;
+    img_temp: TImage;
+    lyt_Tela_Tem_Certeza_D_Voltar: TLayout;
+    Rectangle3: TRectangle;
+    Label4: TLabel;
+    Layout5: TLayout;
+    SIM_ExcluirOS: TImage;
+    Nao_ExcluirOS: TImage;
+    procedure img_tempClick(Sender: TObject);
+    procedure FormCreate(Sender: TObject);
+    procedure FormDestroy(Sender: TObject);
+    procedure FormShow(Sender: TObject);
+    procedure Image2Click(Sender: TObject);
+    procedure Image3Click(Sender: TObject);
+    procedure SIM_ExcluirOSClick(Sender: TObject);
+    procedure Nao_ExcluirOSClick(Sender: TObject);
+    procedure Image1Click(Sender: TObject);
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+    Assina : Tlist<TAssinatura>;
+    botao : boolean;
+    procedure AddPoint(const x, y : single; const state: byte);
+  end;
+
+var
+  FrmAssinatura: TFrmAssinatura;
+
+implementation
+
+{$R *.fmx}
+
+procedure TFrmAssinatura.AddPoint(const x, y: single; const state: byte);
+var
+  p : TAssinatura;
+
+begin
+
+  p.PosicaoCursor := PointF(x, y);
+  p.PosState := state;
+
+  if Assina.Count - 1 < 0 then
+      p.PosState := 0;
+
+
+  if p.PosState <> 1 then
+      Assina.add(p)
+  else
+  if p.PosicaoCursor.Distance(Assina.Last.PosicaoCursor) > 0.8 then
+      Assina.Add(p);
+
+
+  rect_assinatura.Repaint;
+
+
+
+end;
+
+procedure TFrmAssinatura.FormCreate(Sender: TObject);
+begin
+  Assina := TList<TAssinatura>.create;
+end;
+
+procedure TFrmAssinatura.FormDestroy(Sender: TObject);
+begin
+  FreeAndNil (Assina);
+end;
+
+procedure TFrmAssinatura.FormShow(Sender: TObject);
+begin
+  Assina.clear;
+end;
+
+procedure TFrmAssinatura.Image1Click(Sender: TObject);
+begin
+  //rotacionar a assinatura ....
+  img_temp.RotationAngle := 0;
+  img_temp.Bitmap := rect_assinatura.MakeScreenshot;
+  img_temp.Bitmap.Rotate(90);
+
+{ AQUI ENTRARIA O IMAGE QUE RECEBERIA A ASSINATURA
+
+  Form1.img_assinatura.Bitmap.Assing(img_temp.MakeScreenshot);
+  }
+  close;
+end;
+
+procedure TFrmAssinatura.Image2Click(Sender: TObject);
+begin
+  Assina.clear;
+end;
+
+
+//PROCEDURE QUE CHAMAR A CAIXANHA PARA SELECIONAR A OPÇÃO PARA VOLTAR
+procedure TFrmAssinatura.Image3Click(Sender: TObject);
+begin
+  lyt_Tela_Tem_Certeza_D_Voltar.Visible := true;
+end;
+
+
+{ PROCEDURE CRIADA PARA PEGAR AS DIMENSOES DO FORMULARIA E SUBTITUIR NA IMG_TEMP CRIADA PARA DEIXAR
+  A FOTO DA ASSINATURA EM 0º GRAU }
+procedure TFrmAssinatura.img_tempClick(Sender: TObject);
+begin
+  img_temp.Width := FrmAssinatura.Height;
+  img_temp.Height := FrmAssinatura.Width;
+end;
+
+//PROCEDURE PARA VOLTAR E ESCONDER A CAXINHA DE PERGUNTA... SE DESEJA SAIR
+procedure TFrmAssinatura.Nao_ExcluirOSClick(Sender: TObject);
+begin
+lyt_Tela_Tem_Certeza_D_Voltar.Visible := false;
+end;
+
+//PROCEDURE PARA APAGAR A ASSINATURA E FECHAR O FORMULARIO
+procedure TFrmAssinatura.SIM_ExcluirOSClick(Sender: TObject);
+begin
+   Assina.Clear;
+  Close;
+end;
+
+end.
